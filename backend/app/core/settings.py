@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
 
     openai_api_key: str | None = None
+    whisper_provider: Literal["openai", "local"] = "openai"
     groq_api_key: str | None = None
     qdrant_url: str | None = None
     qdrant_api_key: str | None = None
@@ -21,6 +23,7 @@ class Settings(BaseSettings):
     supabase_anon_key: str | None = None
 
     whisper_model: str = "whisper-1"
+    local_whisper_command: str | None = None
     sentiment_model: str = "cardiffnlp/twitter-roberta-base-sentiment-latest"
     bias_model: str = "d4data/bias-detection-model"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
@@ -35,7 +38,11 @@ class Settings(BaseSettings):
 
     @property
     def real_transcription_enabled(self) -> bool:
-        return bool(self.openai_api_key)
+        return self.whisper_provider == "openai" and bool(self.openai_api_key)
+
+    @property
+    def local_transcription_enabled(self) -> bool:
+        return self.whisper_provider == "local" and bool(self.local_whisper_command)
 
     @property
     def real_groq_enabled(self) -> bool:

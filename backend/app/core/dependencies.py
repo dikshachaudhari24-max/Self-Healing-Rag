@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from app.core.settings import get_settings
 from app.repositories.sessions import SessionRepository, create_session_repository
+from app.repositories.transcripts import TranscriptRepository, create_transcript_repository
 from app.services.analysis import AnalysisService, create_analysis_service
 from app.services.reporting import ReportingService, create_reporting_service
 from app.services.suggestions import SuggestionService, create_suggestion_service
@@ -14,8 +15,13 @@ def get_session_repository() -> SessionRepository:
 
 
 @lru_cache(maxsize=1)
+def get_transcript_repository() -> TranscriptRepository:
+    return create_transcript_repository(get_settings())
+
+
+@lru_cache(maxsize=1)
 def get_transcription_service() -> TranscriptionService:
-    return create_transcription_service(get_settings())
+    return create_transcription_service(get_settings(), get_transcript_repository())
 
 
 @lru_cache(maxsize=1)

@@ -8,6 +8,13 @@ from pydantic import BaseModel, Field
 SpeakerLabel = Literal["interviewer", "candidate"]
 
 
+class TranscriptTurnResponse(BaseModel):
+    speaker: SpeakerLabel
+    text: str
+    start: float | None = None
+    end: float | None = None
+
+
 class TranscriptTurn(BaseModel):
     speaker: SpeakerLabel
     text: str
@@ -18,7 +25,26 @@ class TranscriptTurn(BaseModel):
 
 class UploadResponse(BaseModel):
     interview_id: str
-    transcript: list[TranscriptTurn]
+    transcript: list[TranscriptTurnResponse]
+
+
+class TranscriptRowCreate(BaseModel):
+    interview_id: str
+    speaker: SpeakerLabel
+    text: str
+    timestamp_start: float
+    turn_index: int
+
+
+class WhisperSegment(BaseModel):
+    text: str
+    start: float | None = None
+    end: float | None = None
+
+
+class WhisperTranscript(BaseModel):
+    text: str = ""
+    segments: list[WhisperSegment] = Field(default_factory=list)
 
 
 class AnalyzeRequest(BaseModel):
